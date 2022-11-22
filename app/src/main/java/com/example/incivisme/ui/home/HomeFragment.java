@@ -20,11 +20,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.incivisme.databinding.FragmentHomeBinding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     private ActivityResultLauncher<String[]> locationPermissionRequest;
+    private FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -53,7 +56,22 @@ public class HomeFragment extends Fragment {
                     }
                 }
         );
-        
+
+
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(
+                location -> {
+                    if (location != null) {
+                        mLastLocation = location;
+                        binding.localitzacio.setText(
+                                String.format("Latitud: %1$.4f \n Longitud: %2$.4f\n Hora: %3$tr",
+                                        mLastLocation.getLatitude(),
+                                        mLastLocation.getLongitude(),
+                                        mLastLocation.getTime()));
+                    } else {
+                        binding.localitzacio.setText("Sense localització coneguda");
+                    }
+                });
+
         return root;
     }
 
